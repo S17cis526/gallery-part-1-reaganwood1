@@ -8,13 +8,45 @@
  */
  
  var http = require ('http'); // when require is seen, the type will be http.
- var port = 3000;
+ var fs = require ('fs');
  
- var server = http.createServer((req, res) =>{
-	res.end("OK");
+ var port = 2998;
+ 
+ function serveImage(filename, req, res) {
+	 fs.readFile('images/' + filename, function(err, body){
+		 
+		 if (err){
+			 console.error(err);
+			 res.statusCode = 500;
+			 res.statusMessage = "whoops";
+			 res.end("Silly me");
+			 return;
+		 }
+		 
+	 // stores binary date of image data
+			res.setheader("Contet-Type", "image/jpeg"); // tells browser what the data is
+			res.end(body); // browser will now display data
+	 }); 
+	 
+ }
+ var server = http.createServer(function(req, res) {
+	switch (req.url) {
+		
+		case "/chess":
+			serveImage('chess.jpg', req, res);
+			break;
+		case "/fern.jpeg":
+			serveImage('fern.jpg', req, res);
+			break;
+		default:
+			res.statusCode = 404;
+			res.statusMessage = "Not found";
+			res.end(); // can only call this once
+	}
+	
  });
 
- server.listen(port, () => {
+ server.listen(port, function() {
 	 
 	 console.log("listening on Port " + port);
  });
